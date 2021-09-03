@@ -11,6 +11,7 @@ from setuptools.command.install import install
 
 os.environ['PATH'] += os.pathsep + os.path.join(sys.prefix, 'bin')
 
+
 class BuildExtensionCommand(build_ext):
 
     compiler_options = {
