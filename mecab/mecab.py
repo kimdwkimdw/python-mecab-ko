@@ -1,18 +1,18 @@
 from collections import namedtuple
-from typing import List, Tuple
+from typing import List, NamedTuple, Tuple
 
 import _mecab
 
-Feature = namedtuple('Feature', [
-    'pos',
-    'semantic',
-    'has_jongseong',
-    'reading',
-    'type',
-    'start_pos',
-    'end_pos',
-    'expression',
-])
+
+class Feature(NamedTuple):
+    pos: str
+    semantic: str
+    has_jongseong: bool
+    reading: str
+    type: str
+    start_pos: str
+    end_pos: str
+    expression: str
 
 
 def _create_lattice(sentence: str) -> _mecab.Lattice:
