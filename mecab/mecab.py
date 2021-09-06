@@ -1,6 +1,7 @@
-import _mecab
 from collections import namedtuple
+from typing import List, Tuple
 
+import _mecab
 
 Feature = namedtuple('Feature', [
     'pos',
@@ -14,7 +15,7 @@ Feature = namedtuple('Feature', [
 ])
 
 
-def _create_lattice(sentence):
+def _create_lattice(sentence: str) -> _mecab.Lattice:
     lattice = _mecab.Lattice()
     lattice.add_request_type(_mecab.MECAB_ALLOCATE_SENTENCE)  # Required
     lattice.set_sentence(sentence)
@@ -22,12 +23,12 @@ def _create_lattice(sentence):
     return lattice
 
 
-def _extract_feature(node):
+def _extract_feature(node: _mecab.Node) -> Feature:
     # Reference:
     # - http://taku910.github.io/mecab/learn.html
     # - https://docs.google.com/spreadsheets/d/1-9blXKjtjeKZqsf4NzHeYJCrr49-nXeRF6D80udfcwY
     # - https://bitbucket.org/eunjeon/mecab-ko-dic/src/master/utils/dictionary/lexicon.py
-    
+
     # feature = <pos>,<semantic>,<has_jongseong>,<reading>,<type>,<start_pos>,<end_pos>,<expression>
     values = node.feature.split(',')
     assert len(values) == 8
@@ -44,7 +45,7 @@ class MeCabError(Exception):
 
 
 class MeCab:  # APIs are inspried by KoNLPy
-    def __init__(self, dicpath=''):
+    def __init__(self, dicpath: str = ''):
         argument = ''
 
         if dicpath != '':
@@ -52,7 +53,7 @@ class MeCab:  # APIs are inspried by KoNLPy
 
         self.tagger = _mecab.Tagger(argument)
 
-    def parse(self, sentence):
+    def parse(self, sentence: str) -> List[Tuple[str, Feature]]:
         lattice = _create_lattice(sentence)
         if not self.tagger.parse(lattice):
             raise MeCabError(self.tagger.what())
@@ -62,17 +63,17 @@ class MeCab:  # APIs are inspried by KoNLPy
             for node in lattice
         ]
 
-    def pos(self, sentence):
+    def pos(self, sentence: str) -> List[Tuple[str, str]]:
         return [
             (surface, feature.pos) for surface, feature in self.parse(sentence)
         ]
 
-    def morphs(self, sentence):
+    def morphs(self, sentence: str) -> List[str]:
         return [
             surface for surface, _ in self.parse(sentence)
         ]
 
-    def nouns(self, sentence):
+    def nouns(self, sentence: str) -> List[str]:
         return [
             surface for surface, feature in self.parse(sentence)
             if feature.pos.startswith('N')
