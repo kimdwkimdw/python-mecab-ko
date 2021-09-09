@@ -77,7 +77,7 @@ def install(url, *args, environment=None):
 if __name__ == '__main__':
     fancy_print('Installing mecab-ko...', color=32, bold=True)
     install(MECAB_KO_URL, '--prefix={}'.format(sys.prefix),
-                          '--enable-utf8-only')
+                          '--enable-utf8-only', '' if os.uname().machine!='aarch64' else '--build=aarch64-unknown-linux-gnu')
 
     fancy_print('Installing mecab-ko-dic...', color=32, bold=True)
     mecab_config_path = os.path.join(sys.prefix, 'bin', 'mecab-config')
