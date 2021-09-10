@@ -12,8 +12,15 @@ from setuptools.command.install import install
 os.environ['PATH'] += os.pathsep + os.path.join(sys.prefix, 'bin')
 
 
-class BuildExtensionCommand(build_ext):
+def install_mecab():
+    base_path = os.path.abspath(os.path.dirname(__file__))
+    scripts_directory = os.path.join(base_path, 'scripts')
+    subprocess.check_call([sys.executable,
+                           os.path.join(scripts_directory, 'install-mecab-ko.py')],
+                          cwd=scripts_directory)
 
+
+class BuildExtensionCommand(build_ext):
     compiler_options = {
         'msvc': ['/EHsc'],
         'unix': [],
@@ -40,6 +47,9 @@ class BuildExtensionCommand(build_ext):
 
         for extension in self.extensions:
             extension.extra_compile_args = options
+
+        if not shutil.which('mecab'):
+            install_mecab()
 
         super().build_extensions()
 
@@ -74,16 +84,9 @@ class BuildExtensionCommand(build_ext):
 class InstallCommand(install):
     def run(self):
         if not shutil.which('mecab'):
-            self.install_mecab()
+            install_mecab()
 
         super().run()
-
-    def install_mecab(self):
-        base_path = os.path.abspath(os.path.dirname(__file__))
-        scripts_directory = os.path.join(base_path, 'scripts')
-        subprocess.check_call([sys.executable,
-                               os.path.join(scripts_directory, 'install-mecab-ko.py')],
-                              cwd=scripts_directory)
 
 
 def lazy(func):
